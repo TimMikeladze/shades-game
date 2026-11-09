@@ -84,7 +84,7 @@ h3{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:40px 0 -6px}
 .bar .time.warn{color:var(--warn)}
 .bar .quit{height:40px;min-width:40px;padding:0 12px;border-radius:20px;background:var(--chip);font-size:16px;font-weight:600}
 .bar .quit.warn{background:var(--ink);color:var(--bg)}
-.stage{flex:1;min-height:0;display:flex;position:relative}
+.stage{flex:1;min-height:0;display:flex;position:relative;transition:padding-bottom .35s cubic-bezier(.3,.9,.3,1)}
 .grid{display:grid;grid-template-columns:1fr;gap:0;width:100%;height:100%;touch-action:none;transition:gap .4s ease}
 .grid.lines{gap:2px}
 .grid.done{gap:0}
@@ -481,7 +481,7 @@ function startTurn(){
   for(let i=0;i<n;i++){const t=document.createElement('div');t.className='tile'+(fixed.has(i)?' fixed':'');t.dataset.i=i;grid.appendChild(t);tiles.push(t)}
   $('#plName').textContent=G.names[G.order[G.turn]];
   $('#plTime').textContent=c.limit?c.limit.toFixed(1):'0.0';$('#plTime').classList.remove('warn');
-  $('#solvedBar').classList.remove('up');$('#endBtn').hidden=true;
+  $('#solvedBar').classList.remove('up');$('#endBtn').hidden=true;$('#stage').style.paddingBottom='';
   resetQuit();clearPhase();cancelAnimationFrame(raf);
   show('play');
   if(c.preview){
@@ -599,8 +599,11 @@ function finish(dnf){
   const final=isLast(c,G.round)||G.over;
   $('#nextBtn').textContent=last?(final?'See results':(multi()?'See round results':'Round '+(G.round+2))):'Pass to '+G.names[G.order[G.turn+1]];
   $('#endBtn').hidden=!(INF(c)&&!multi()&&!G.over);
-  setTimeout(()=>$('#solvedBar').classList.add('up'),dnf?900:650);
+  setTimeout(()=>{$('#solvedBar').classList.add('up');fitStage()},dnf?900:650);
 }
+/* shrink the board above the result sheet so the full palette stays visible */
+function fitStage(){const b=$('#solvedBar');if(b.classList.contains('up'))$('#stage').style.paddingBottom=b.offsetHeight+'px'}
+addEventListener('resize',fitStage);
 $('#endBtn').onclick=()=>showFinal();
 $('#nextBtn').onclick=()=>{
   if(G.turn<G.order.length-1){G.turn++;handoff();return}
